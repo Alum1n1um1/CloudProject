@@ -1,0 +1,45 @@
+:root{
+    --bg:#0b0f14; --bg-2:#121826;
+    --header:#0a2342;
+    --text-1:#ffffff; --text-2:#b9c7da; --text-3:#7a8699;
+    --link:#f6c344;
+    --btn-2:#f6c344; --btn-2-hover:#d4a636; --btn-2-ring:#ffe7a8;
+    --field-bg:#0f1420; --field-border:#2d3850; --field-placeholder:#8a96aa;
+    --border:#22293a;
+    --table-head-top:#1e2f51; --table-head-bottom:#2a3e64; --table-head-text:#eaf2ff;
+}
+
+*{box-sizing:border-box}
+html, body { height: 100%; }
+body{margin:0;display:flex;flex-direction:column;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text-1);min-height:100vh;}
+main{flex:1;padding:2rem 1.25rem}
+
+.card{background:var(--bg-2);padding:1.5rem;border:1px solid var(--border);border-radius:12px;margin:0 auto 2rem;width:90vw;max-width:600px;box-shadow:0 6px 24px rgba(0,0,0,.35);}
+h1,h2,h3{color:var(--text-1);margin-top:0;text-align:center;}
+
+button{
+    appearance:none;border:0;border-radius:10px;padding:.75rem 1.2rem;font-weight:600;
+    cursor:pointer;transition:transform .08s ease,background .2s ease;display:block;width:100%;
+}
+button:active{transform:translateY(1px)}
+.btn-2{background:linear-gradient(145deg,#f6c344,#d4a636);color:#1a1200;box-shadow:0 2px 6px rgba(246,195,68,.35);}
+.btn-2:hover{background:linear-gradient(145deg,#ffd25e,#d4a636);}
+
+form{display:grid;gap:.8rem;}
+label{display:block;color:var(--text-2);font-weight:600;}
+input{
+    width:100%;margin-top:.35rem;padding:.6rem .75rem;border-radius:8px;
+    border:1px solid var(--field-border);background:var(--field-bg);color:var(--text-1);
+}
+input:focus{border-color:var(--btn-2);outline:none;box-shadow:0 0 0 2px rgba(246,195,68,.35);}
+
+.table-container{overflow:auto;margin-top:1rem;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:.75rem;border-bottom:1px solid var(--border);text-align:center;}
+thead th{
+    color:var(--table-head-text);
+    background:linear-gradient(180deg,var(--table-head-top),var(--table-head-bottom));
+    font-weight:700;text-transform:uppercase;font-size:.85rem;
+}
+td{color:var(--text-2);}
+tbody tr:nth-child(even){background:rgba(255,255,255,.02);}
