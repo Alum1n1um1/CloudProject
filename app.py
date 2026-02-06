@@ -1,19 +1,53 @@
 from flask import Flask, render_template, request, redirect
-import redis
 import os
 import json
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
-# Connexion Redis via la variable d'environnement de Render
-redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379")
-r = redis.from_url(redis_url, decode_responses=True)
+# Connexion PostgreSQL via variable Render
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+def get_db_connection():
+    return psycopg2.connect(DATABASE_URL, sslmode="require", cursor_factory=RealDictCursor)
+
+# Création table si elle n'existe pas
+def init_db():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS imc_history (
+            id SERIAL PRIMARY KEY,
+            weight FLOAT NOT NULL,
+            height FLOAT NOT NULL,
+            imc FLOAT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    conn.commit()
+    cur.close()
+    conn.close()
+
+init_db()
 
 @app.route('/')
 def index():
-    # Récupération des 10 derniers éléments de la liste Redis
-    raw_history = r.lrange("imc_history", 0, 9)
-    history = [json.loads(item) for item in raw_history]
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT weight, height, imc
+        FROM imc_history
+        ORDER BY created_at DESC
+        LIMIT 10
+    """)
+
+    history = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
     return render_template('index.html', history=history)
 
 @app.route('/calculate', methods=['POST'])
@@ -21,16 +55,35 @@ def calculate():
     try:
         weight = float(request.form.get('weight'))
         height = float(request.form.get('height'))
-        
+
         if height > 0:
             imc = round(weight / (height ** 2), 2)
-            data = json.dumps({"weight": weight, "height": height, "imc": imc})
-            # Ajout en tête de liste et limitation à 50 entrées
-            r.lpush("imc_history", data)
-            r.ltrim("imc_history", 0, 49)
+
+            conn = get_db_connection()
+            cur = conn.cursor()
+
+            cur.execute("""
+                INSERT INTO imc_history (weight, height, imc)
+                VALUES (%s, %s, %s)
+            """, (weight, height, imc))
+
+            # Limite à 50 entrées
+            cur.execute("""
+                DELETE FROM imc_history
+                WHERE id NOT IN (
+                    SELECT id FROM imc_history
+                    ORDER BY created_at DESC
+                    LIMIT 50
+                )
+            """)
+
+            conn.commit()
+            cur.close()
+            conn.close()
+
     except:
         pass
-    
+
     return redirect('/')
 
 if __name__ == '__main__':
