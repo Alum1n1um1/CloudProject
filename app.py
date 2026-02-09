@@ -58,7 +58,7 @@ def calculate():
         weight = float(request.form.get('weight'))
         height = float(request.form.get('height'))
 
-        if height > 0:
+        if height > 0 and weight > 0:
             imc = round(weight / (height ** 2), 2)
 
             conn = get_db_connection()
