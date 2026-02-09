@@ -10,7 +10,7 @@ app = Flask(__name__)
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_db_connection():
-    return psycopg2.connect(DATABASE_URL, sslmode="require", cursor_factory=RealDictCursor)
+    return psycopg2.connect(DATABASE_URL, sslmode="disable", cursor_factory=RealDictCursor)
 
 # Création table si elle n'existe pas
 def init_db():
