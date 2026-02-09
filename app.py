@@ -8,9 +8,11 @@ app = Flask(__name__)
 
 # Connexion PostgreSQL via variable Render
 DATABASE_URL = os.environ.get("DATABASE_URL")
+# Selon si on est en prod ou en local, on active SSL ou non
+db_ssl_mode = os.getenv("DB_SSL_MODE", "require")
 
 def get_db_connection():
-    return psycopg2.connect(DATABASE_URL, sslmode="require", cursor_factory=RealDictCursor)
+    return psycopg2.connect(DATABASE_URL, sslmode=db_ssl_mode, cursor_factory=RealDictCursor)
 
 # Création table si elle n'existe pas
 def init_db():
